@@ -87,7 +87,7 @@ def change_user_status(
     try:
         # Verificar permisos del usuario
         id_rol = user_token.id_rol
-        if not verify_permissions(db, id_rol, modulo, 'actualizar'):
+        if not verify_permission(db, id_rol, modulo, 'actualizar'):
             raise HTTPException(status_code=401, detail="Usuario no autorizado")
 
         success = crud_users.change_user_status(db, user_id, nuevo_estado)
