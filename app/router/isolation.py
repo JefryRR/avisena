@@ -1,12 +1,12 @@
 from typing import List
 from app.schemas.users import UserOut
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import SQLAlchemyError
 from app.crud.permisos import verify_permission
 from app.router.dependencies import get_current_user
 from core.database import get_db
-from app.schemas.isolation import IsolationCreate, IsolationOut, IsolationUpdate
+from app.schemas.isolation import IsolationBase, IsolationCreate, IsolationOut, IsolationUpdate
 from app.crud import isolation as crud_isolation
 
 router = APIRouter()
@@ -69,6 +69,27 @@ def get_isolations(
     except SQLAlchemyError as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+
+@router.get("/rango-fechas", response_model=List[IsolationBase])
+def obtener_isolation_por_rango_fechas(
+    fecha_inicio: str = Query(..., description="Fecha inicial en formato YYYY-MM-DD"),
+    fecha_fin: str = Query(..., description="Fecha final en formato YYYY-MM-DD"),
+    db: Session = Depends(get_db)
+):
+    """
+    Obtiene todas las tareas que inician o terminan dentro de un rango de fechas.
+    Ignora las horas y devuelve las tareas ordenadas por fecha_hora_init.
+    """
+    try:
+        asilamiento = crud_isolation.get_aislamiento_by_date_range(db, fecha_inicio, fecha_fin)
+
+        if not asilamiento:
+            raise HTTPException(status_code=404, detail="No hay asilamiento en ese rango de fechas")
+
+        return asilamiento
+
+    except SQLAlchemyError as e:
+        raise HTTPException(status_code=500, detail=f"Error al obtener las asilamiento: {e}")
 
 @router.put("/by-id/{isolation_id}")
 def update_isolations(

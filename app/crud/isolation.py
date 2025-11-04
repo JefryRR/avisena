@@ -49,6 +49,30 @@ def get_all_isolations(db: Session):
     except SQLAlchemyError as e:
         logger.error(f"Error al obtener los aislamientos: {e}")
         raise Exception("Error de base de datos al obtener los aislamientos")
+    
+def get_aislamiento_by_date_range(db: Session, fecha_inicio: str, fecha_fin: str):
+    """
+    Obtiene las tareas cuya fecha de inicio o fin esté dentro de un rango de fechas.
+    Ignora las horas (usa DATE(fecha_hora_init) y DATE(fecha_hora_fin)).
+    """
+    try:
+        query = text("""
+            SELECT id_aislamiento, id_incidente_gallina, fecha_hora, aislamiento.id_galpon, galpones.nombre
+            FROM aislamiento
+            INNER JOIN galpones ON galpones.id_galpon = aislamiento.id_galpon
+            WHERE DATE(fecha_hora) BETWEEN :fecha_inicio AND :fecha_fin
+            ORDER BY fecha_hora ASC
+        """)
+        result = db.execute(query, {
+            "fecha_inicio": fecha_inicio,
+            "fecha_fin": fecha_fin
+        }).mappings().all()
+        return result
+
+    except SQLAlchemyError as e:
+        raise Exception(f"Error al consultar los aislamientos por rango de fechas: {e}")
+
+    
 
 def update_isolation_by_id(db: Session, isolation_id: int, isolation: IsolationUpdate) -> Optional[bool]:
     try:
