@@ -29,12 +29,12 @@ def create_isolation(
     # Validar galpón
     result = db.execute(text("SELECT id_galpon FROM galpones WHERE id_galpon = :id"), {"id": isolation.id_galpon}).first()
     if not result:
-        raise HTTPException(status_code=404, detail=f"Galpón con ID {isolation.id_galpon} no existe")
+        raise HTTPException(status_code=404, detail=f"El id del galpón ingresado no existe")
 
     # Validar incidente
     result = db.execute(text("SELECT id_inc_gallina FROM incidentes_gallina WHERE id_inc_gallina = :id"), {"id": isolation.id_incidente_gallina}).first()
     if not result:
-        raise HTTPException(status_code=404, detail=f"Incidente con ID {isolation.id_incidente_gallina} no existe")
+        raise HTTPException(status_code=404, detail=f"El id del incidente ingresado no existe")
     
     try:
      id_rol = user_token.id_rol
