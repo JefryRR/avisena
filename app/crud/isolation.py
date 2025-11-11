@@ -17,7 +17,10 @@ def create_isolation(db: Session, isolation: IsolationCreate) -> Optional[bool]:
                 :id_incidente_gallina, :fecha_hora, :id_galpon
             )
         """)
-        db.execute(query, isolation.model_dump())
+        data = isolation.model_dump()
+        data["fecha_hora"] = data.get("fecha_hora") or datetime.utcnow()
+
+        db.execute(query, data)
         db.commit()
         return True
     except SQLAlchemyError as e:

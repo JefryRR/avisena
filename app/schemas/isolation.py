@@ -8,7 +8,7 @@ class IsolationBase(BaseModel):
     id_galpon: int
 
 class IsolationCreate(IsolationBase):
-    pass
+     fecha_hora: datetime.datetime = Field(..., description="Fecha y hora del aislamiento")
 
 class IsolationUpdate(BaseModel):
     id_incidente_gallina: Optional[int] = None
@@ -19,7 +19,7 @@ class IsolationEstado(BaseModel):
     pass
 
 class IsolationOut(IsolationBase):
-    fecha_hora: datetime.datetime
+    #fecha_hora: datetime.datetime
     id_aislamiento: int
     nombre: str
 
