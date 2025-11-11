@@ -1,6 +1,6 @@
 import datetime
 from pydantic import BaseModel, Field
-from typing import Optional
+from typing import List, Optional
 
 class IsolationBase(BaseModel):
     id_incidente_gallina : int
@@ -22,3 +22,11 @@ class IsolationEstado(BaseModel):
 class IsolationOut(IsolationBase):
     id_aislamiento: int
     nombre: str
+
+class PaginatedIsolations(BaseModel):
+    page: int
+    page_size: int
+    total_isolation: int
+    total_pages: int
+    isolation: List[IsolationOut]
+   

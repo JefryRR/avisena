@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Query
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import SQLAlchemyError
 from app.crud.permisos import verify_permission
@@ -62,6 +62,36 @@ def get_user(
         return user
     except SQLAlchemyError as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.get("/all_except_admins-pag", response_model=dict)
+def get_user_pag(
+    page: int = Query(1, ge=1),
+    page_size: int = Query(10, ge=1, le=100),
+    db: Session = Depends(get_db),
+    user_token: UserOut = Depends(get_current_user)
+):
+    
+    try:
+        id_rol = user_token.id_rol
+        if not verify_permission(db, id_rol, modulo, "seleccionar"):         
+            raise HTTPException(status_code=401, detail="Usuario no autorizado")
+        skip = (page - 1) * page_size
+        data = crud_users.get_all_users_except_admins_pag(db, skip=skip, limit=page_size)
+        
+        total = data["total"]
+        users = data["users"]
+        
+        return {
+            "page": page,
+            "page_size": page_size,
+            "total_users": total,
+            "total_pages":(total + page_size - 1) // page_size,
+            "users": users
+        }
+    except SQLAlchemyError as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
 
 @router.put("/by_id/{user_id}")
 def update_user(

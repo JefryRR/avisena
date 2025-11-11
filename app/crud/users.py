@@ -73,6 +73,43 @@ def get_all_users_except_admins(db: Session):
         logger.error(f"Error al obtener los usuarios: {e}")
         raise Exception("Error de base de datos al obtener los usuarios")
 
+
+def get_all_users_except_admins_pag(db: Session, skip:int = 0, limit = 10):
+    """
+    Obtiene los usuarios (excepto los administaradores) con paginación.
+    También realizar una segunda consulta para contar total de usuarios.
+    compatible con PostgreSQL, MySQL y SQLite 
+    """
+    try:  #Try statement must have at
+            #1. Contar total de usuarioas excepto admins 
+        count_query = text("""SELECT COUNT(id_usuario) AS total 
+                     FROM usuarios 
+                     WHERE id_rol NOT IN (1,2)
+                     """)
+        total_result = db.execute(count_query).scalar()
+
+        #2 Consultar usuarios 
+        data_query = text("""SELECT id_usuario, nombre, documento, usuarios.id_rol,
+                email, telefono, estado, nombre_rol 
+                     FROM usuarios 
+                     JOIN roles ON usuarios.id_rol = roles.id_rol
+                     WHERE usuarios.id_rol NOT IN (1,2)
+                     ORDER BY id_usuario
+                     LIMIT :limit OFFSET :skip
+        """)
+        
+        result = db.execute(data_query,{"skip": skip, "limit": limit}).mappings().all()
+        #
+        return {
+                "total": total_result or 0,
+                "users": [dict(row) for row in result]
+            }
+    except SQLAlchemyError as e:
+        logger.error(f"Error al obtener los usuarios: {e}", exc_info=True)
+        raise Exception("Error de base de datos al obtener los usuarios")
+
+
+
 def update_user_by_id(db: Session, user_id: int, user: UserUpdate) -> Optional[bool]:
     try:
         # Solo los campos enviados por el cliente
