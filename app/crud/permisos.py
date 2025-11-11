@@ -8,7 +8,7 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-def verify_permission(db: Session, id_rol: int, id_modulo: int, accion: str):
+def verify_permissions(db: Session, id_rol: int, id_modulo: int, accion: str):
     try:
         query = text("""SELECT insertar, actualizar, seleccionar, borrar
                      FROM permisos 

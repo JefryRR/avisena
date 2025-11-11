@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from app.router.dependencies import get_current_user
-from app.crud.permisos import verify_permission
+from app.crud.permisos import verify_permissions
 from sqlalchemy.exc import SQLAlchemyError
 from core.database import get_db
 from app.schemas.estates import FincasCreate, FincaOut, FincaUpdate
@@ -18,7 +18,7 @@ def create_estate(
     user_token: UserOut = Depends(get_current_user)):
     try:
         id_rol = user_token.id_rol
-        if not verify_permission(db, id_rol, modulo, "insertar"):
+        if not verify_permissions(db, id_rol, modulo, "insertar"):
             raise HTTPException(status_code=401, detail="Usuario no autorizado")
 
         crud_estates.create_finca(db, finca)

@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status, Query
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import SQLAlchemyError
-from app.crud.permisos import verify_permission
+from app.crud.permisos import verify_permissions
 from app.router.dependencies import get_current_user
 from core.database import get_db
 from app.schemas.users import UserCreate, UserOut, UserUpdate
@@ -22,7 +22,7 @@ def create_user(
         else:
             modulo = 1
         
-        if not verify_permission(db, id_rol, modulo, "insertar"):
+        if not verify_permissions(db, id_rol, modulo, "insertar"):
             raise HTTPException(status_code=401, detail="Usuario no autorizado")
 
         crud_users.create_user(db, user)
@@ -38,7 +38,7 @@ def get_user(email: str, db: Session = Depends(get_db),
     try:
         id_rol = user_token.id_rol
         if not email == user_token.email:
-            if not verify_permission(db, id_rol, modulo, "seleccionar"):         
+            if not verify_permissions(db, id_rol, modulo, "seleccionar"):         
                 raise HTTPException(status_code=401, detail="Usuario no autorizado")
 
         user = crud_users.get_user_by_email(db, email)
@@ -55,7 +55,7 @@ def get_user(
 ):
     try:
         id_rol = user_token.id_rol
-        if not verify_permission(db, id_rol, modulo, "seleccionar"):         
+        if not verify_permissions(db, id_rol, modulo, "seleccionar"):         
             raise HTTPException(status_code=401, detail="Usuario no autorizado")
 
         user = crud_users.get_all_users_except_admins(db)
@@ -73,7 +73,7 @@ def get_user_pag(
 ):  
     try:
         id_rol = user_token.id_rol
-        if not verify_permission(db, id_rol, modulo, "seleccionar"):         
+        if not verify_permissions(db, id_rol, modulo, "seleccionar"):         
             raise HTTPException(status_code=401, detail="Usuario no autorizado")
 
         skip = (page - 1) * page_size
@@ -117,7 +117,7 @@ def change_user_status(
     try:
         # Verificar permisos del usuario
         id_rol = user_token.id_rol
-        if not verify_permission(db, id_rol, modulo, 'actualizar'):
+        if not verify_permissions(db, id_rol, modulo, 'actualizar'):
             raise HTTPException(status_code=401, detail="Usuario no autorizado")
 
         success = crud_users.change_user_status(db, user_id, nuevo_estado)
