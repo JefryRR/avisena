@@ -70,12 +70,12 @@ def get_user_pag(
     page_size: int = Query(10, ge=1, le=100),
     db: Session = Depends(get_db),
     user_token: UserOut = Depends(get_current_user)
-):
-    
+):  
     try:
         id_rol = user_token.id_rol
         if not verify_permission(db, id_rol, modulo, "seleccionar"):         
             raise HTTPException(status_code=401, detail="Usuario no autorizado")
+
         skip = (page - 1) * page_size
         data = crud_users.get_all_users_except_admins_pag(db, skip=skip, limit=page_size)
         
