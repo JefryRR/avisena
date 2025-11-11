@@ -90,51 +90,6 @@ def get_isolations(
     except SQLAlchemyError as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-@router.get("/all_isolations-pag", response_model=dict)
-def get_isolation_pag(
-    page: int = Query(1, ge=1),
-    page_size: int = Query(10, ge=1, le=100),
-    db: Session = Depends(get_db)
-):
-    
-    try:
-        skip = (page - 1) * page_size
-        data = crud_isolation.get_all_isolations_pag(db, skip=skip, limit=page_size)
-        
-        total = data["total"]
-        users = data["users"]
-        
-        return {
-            "page": page,
-            "page_size": page_size,
-            "total_users": total,
-            "total_pages":(total + page_size - 1) // page_size,
-            "users": users
-        }
-    except SQLAlchemyError as e:
-        raise HTTPException(status_code=500, detail=str(e))
-
-
-@router.get("/rango-fechas", response_model=List[IsolationBase])
-def obtener_isolation_por_rango_fechas(
-    fecha_inicio: str = Query(..., description="Fecha inicial en formato YYYY-MM-DD"),
-    fecha_fin: str = Query(..., description="Fecha final en formato YYYY-MM-DD"),
-    db: Session = Depends(get_db)
-):
-    """
-    Obtiene todas las tareas que inician o terminan dentro de un rango de fechas.
-    Ignora las horas y devuelve las tareas ordenadas por fecha_hora_init.
-    """
-    try:
-        asilamiento = crud_isolation.get_aislamiento_by_date_range(db, fecha_inicio, fecha_fin)
-
-        if not asilamiento:
-            raise HTTPException(status_code=404, detail="No hay asilamiento en ese rango de fechas")
-
-        return asilamiento
-
-    except SQLAlchemyError as e:
-        raise HTTPException(status_code=500, detail=f"Error al obtener las asilamiento: {e}")
 
 @router.get("/rango-fechas", response_model=PaginatedIsolations)
 def obtener_isolation_por_rango_fechas(
