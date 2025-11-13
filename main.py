@@ -1,90 +1,6 @@
-# from fastapi import FastAPI
-# from pydantic import BaseModel
-
-
-# app = FastAPI()
-
-# #Esquema
-# class Item(BaseModel):
-#     nombre: str
-#     precio: float
-#     estado: bool
-
-
-# @app.get('/')
-# def inicio():
-#     mensaje = "Hola mundo"
-#     nombre = "Jeferson Rios"
-#     return {
-#         "mensaje": mensaje,
-#         "nombre":nombre
-#         }
-
-# @app.get('/suma')
-# def suma(num1:int, num2:int):
-#     resultado = num1+num2
-#     return {
-#         "mensaje": f"sumar {num1} y {num2} ",
-#         "resultado": resultado}
-
-
-
-# @app.get('/prueba')
-# def potencia(num:int):
-#     resultado = num**3
-#     return {"mensaje": f"el número {num} al cubo es:",
-#             "resultado": resultado
-#             }
-
-# @app.post('/guardar-producto')
-# def guardar_producto(producto: Item, cantidad: int):
-#     total =producto.precio*cantidad
-
-#     return {"mensaje":"almacenado con éxito", "nombre":producto.nombre, "precio": producto.precio,"total": total}
-
-# #crear una lista de diccionarios vacía global, un esquema llamdo aprendiz que pida el nombre, la edad, el correo y la ficha
-# #Crear un endpoint que recibe ese esquema, almacenando el la lista vacía y que retorne la lista de los estudiantes almacenado
-# estudiantes = []
-
-
-# class Aprendices(BaseModel):
-#     nombre_estudiante: str
-#     n_documento: int
-#     edad: int
-#     correo: str
-#     ficha:int
-
-
-# @app.post('/aprendices')
-# def datos_estudiantes(estudiante:Aprendices):
-#     estudiantes.append(estudiante)
-#     return estudiantes  
-
-# @app.put('/aprendices')
-# def datos_estudiantes(nombre: str, documento:int, edad_est:int, correo_est:str, ficha_est:int):
-#     for actualizar_est in estudiantes:
-#         if documento == actualizar_est.n_documento:
-#             actualizar_est.nombre_estudiante = nombre
-#             actualizar_est.edad = edad_est
-#             actualizar_est.correo = correo_est
-#             actualizar_est.ficha = ficha_est
-#     return estudiantes
-
-# @app.delete('/eliminar_aprendiz')
-# def datos_estudiantes(documento:int):
-#     indice = 0
-#     for i, eliminar_est in enumerate(estudiantes):
-#         if documento == eliminar_est.n_documento:
-#             indice = i
-    
-#     if indice != 0:
-#         del estudiantes[indice]
-#     return estudiantes
-
-
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.router import estates, isolation
+from app.router import categories, estates, incidentes_genrales, inventory, isolation, registro_sensores, sensor_types, sensors, sheds
 from app.router import users
 from app.router import auth
 
@@ -94,6 +10,13 @@ app = FastAPI()
 app.include_router(users.router, prefix="/users", tags=["users"])
 app.include_router(estates.router, prefix="/estates", tags=["estates"])
 app.include_router(isolation.router, prefix="/isolations", tags=["aislamiento"])
+app.include_router(categories.router, prefix="/categories", tags=["categories"])
+app.include_router(incidentes_genrales.router, prefix="/indidentes_Grals", tags=["indidentes_Grals"])
+app.include_router(inventory.router, prefix="/inventory", tags=["inventory"])
+app.include_router(registro_sensores.router, prefix="/registro_sensores", tags=["registro_sensores"])
+app.include_router(sensor_types.router, prefix="/sensor_types", tags=["sensor_types"])
+app.include_router(sensors.router, prefix="/sensors", tags=["sensors"])
+app.include_router(sheds.router, prefix="/sheds", tags=["sheds"])
 
 app.include_router(auth.router, prefix="/access", tags=["login"])
 
