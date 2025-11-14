@@ -99,9 +99,7 @@ def obtener_isolation_por_rango_fechas(
     page_size: int = Query(10, ge=1, le=100),
     db: Session = Depends(get_db),
     user_token: UserOut = Depends(get_current_user)
-    
 ):
-    
     """
     Obtiene todas las tareas que inician o terminan dentro de un rango de fechas.
     Ignora las horas y devuelve las tareas ordenadas por fecha_hora_init.
@@ -111,23 +109,26 @@ def obtener_isolation_por_rango_fechas(
         if not verify_permissions(db, id_rol, modulo, 'seleccionar'):
             raise HTTPException(status_code=401, detail="Usuario no autorizado")
         
-        asilamiento = crud_isolation.get_aislamiento_by_date_range(db, fecha_inicio, fecha_fin)
+        # Esta consulta SÍ filtra por fecha
+        aislamientos = crud_isolation.get_aislamiento_by_date_range(db, fecha_inicio, fecha_fin)
 
-        if not asilamiento:
+        if not aislamientos:
             raise HTTPException(status_code=404, detail="No hay asilamiento en ese rango de fechas")
 
+        # Aplicar paginación manualmente a los resultados filtrados
+        total = len(aislamientos)
         skip = (page - 1) * page_size
-        data = crud_isolation.get_all_isolations_pag(db, skip=skip, limit=page_size)
+        end_index = skip + page_size
         
-        total = data["total"]
-        isolation = data["isolation"]
+        # Obtener solo la página solicitada
+        isolation_paginados = aislamientos[skip:end_index]
         
         return PaginatedIsolations(
-            page= page,
-            page_size= page_size,
-            total_isolation= total,
-            total_pages= (total + page_size - 1) // page_size,
-            isolation= isolation
+            page=page,
+            page_size=page_size,
+            total_isolation=total,
+            total_pages=(total + page_size - 1) // page_size,
+            isolation=isolation_paginados
         )
 
     except SQLAlchemyError as e:
