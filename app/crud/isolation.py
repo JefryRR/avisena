@@ -68,11 +68,11 @@ def get_aislamiento_by_date_range(db: Session, fecha_inicio: str, fecha_fin: str
             "fecha_fin": fecha_fin
         }).mappings().all()
         
-        # Convertir a lista de diccionarios
         return [dict(row) for row in result]
 
     except SQLAlchemyError as e:
         raise Exception(f"Error al consultar los aislamientos por rango de fechas: {e}")
+
 def get_all_isolations_pag(db: Session, skip:int = 0, limit = 10):
     """
     Obtiene los aislamientos con paginación.
